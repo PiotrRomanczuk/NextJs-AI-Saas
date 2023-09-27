@@ -4,7 +4,7 @@ export default function DashboardPage() {
 	return (
 		<div>
 			<h1 className='text-4xl'>Hello Dashboard (protected)</h1>
-			<UserButton />
+			<UserButton afterSignOutUrl='/' />
 		</div>
 	);
 }
