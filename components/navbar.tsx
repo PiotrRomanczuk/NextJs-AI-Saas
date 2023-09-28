@@ -1,5 +1,7 @@
 import { Button } from '@/components/ui/button';
-import { Menu} from 'lucide-react';
+import { UserButton } from '@clerk/nextjs';
+import { Menu } from 'lucide-react';
+import { ModeToggle } from './modeToggle';
 
 const Navbar = () => {
 	return (
@@ -7,6 +9,10 @@ const Navbar = () => {
 			<Button variant='ghost' size='icon' className='md:hidden'>
 				<Menu />
 			</Button>
+			<div className='flex w-full justify-end'>
+				<div className='flex gap-4'><ModeToggle />
+				<UserButton afterSignOutUrl='/' />
+			</div></div>
 		</div>
 	);
 };
