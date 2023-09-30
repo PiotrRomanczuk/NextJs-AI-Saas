@@ -7,20 +7,14 @@ import { Montserrat } from 'next/font/google';
 import Image from 'next/image';
 
 import { cn } from '@/lib/utils';
+import { RouteInterface } from '@/interfaces/RouteInterface';
+
+const { routes } = require('./sidebar-routes');
 
 const montserrat = Montserrat({
 	weight: '600',
 	subsets: ['latin'],
 });
-
-const { routes } = require('./sidebar-routes');
-
-interface Route {
-	label: string;
-	icon: React.ComponentType<any>;
-	href: string;
-	color?: string;
-}
 
 const Sidebar = () => {
 	const pathname = usePathname();
@@ -37,7 +31,7 @@ const Sidebar = () => {
 					</h1>
 				</Link>
 				<div className='space-y-1'>
-					{routes.map((route: Route) => (
+					{routes.map((route: RouteInterface) => (
 						<Link
 							href={route.href}
 							key={route.href}

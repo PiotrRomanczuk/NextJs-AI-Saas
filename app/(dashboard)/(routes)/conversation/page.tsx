@@ -1,15 +1,16 @@
+import Heading from '@/components/heading';
+import { MessageSquare } from 'lucide-react';
 
 export default function ConversationPage() {
-
-
 	return (
 		<div>
-			<div className='mb-8 space-y-4'>
-				<h2 className='text-2xl md:text-4xl font-bold text-center'>
-					Explore the power of AI
-				</h2>
-				
-			</div>
+			<Heading
+				title='Conversation'
+				description='Our most advanced conversation model.'
+				icon={MessageSquare}
+				iconColor='text-violet-500'
+				bgColor='bg-violet-500/10'
+			/>
 		</div>
 	);
 }
