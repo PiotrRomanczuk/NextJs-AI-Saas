@@ -5,15 +5,24 @@ import Heading from '@/components/heading';
 import { MessageSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
-import { formSchema } from './constants';
-import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { formSchema } from './constants';
+
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import ChatCompletionRequestMethod from 'openai';
 
 export default function ConversationPage() {
+	const router = useRouter();
+
+	const [messages, setMessages] = useState<ChatCompletionRequestMethod[]>([]);
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -25,6 +34,13 @@ export default function ConversationPage() {
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
 		console.log(values);
+
+		try {
+		} catch (error: any) {
+			console.log(error);
+		} finally {
+			router.refresh();
+		}
 	};
 
 	return (
