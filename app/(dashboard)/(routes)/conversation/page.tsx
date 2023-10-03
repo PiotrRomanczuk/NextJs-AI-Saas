@@ -1,27 +1,27 @@
 'use client';
 
-import Heading from '@/components/heading';
-
+import * as z from 'zod';
+import axios from 'axios';
 import { MessageSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-
-import * as z from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { formSchema } from './constants';
-
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
-
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import ChatCompletionRequestMethod from 'openai';
+import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import { ChatCompletionRequestMessage } from 'openai';
 
-export default function ConversationPage() {
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import Heading from '@/components/heading';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+
+import { formSchema } from './constants';
+import { cn } from '@/lib/utils';
+
+const ConversationPage = () => {
 	const router = useRouter();
 
-	const [messages, setMessages] = useState<ChatCompletionRequestMethod[]>([]);
+	const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([]);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -33,11 +33,25 @@ export default function ConversationPage() {
 	const isLoading = form.formState.isSubmitting;
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
-		console.log(values);
-
 		try {
+			const userMessage: ChatCompletionRequestMessage = {
+				role: 'user',
+				content: values.prompt,
+			};
+			const newMessages = [...messages, userMessage];
+
+			const response = await axios.post('/api/conversation', {
+				messages: newMessages,
+			});
+			setMessages((current) => [...current, userMessage, response.data]);
+
+			form.reset();
 		} catch (error: any) {
-			console.log(error);
+			if (error?.response?.status === 403) {
+				// proModal.onOpen();
+			} else {
+				toast.error('Something went wrong.');
+			}
 		} finally {
 			router.refresh();
 		}
@@ -57,7 +71,18 @@ export default function ConversationPage() {
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(onSubmit)}
-							className='rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-12 gap-2'
+							className='
+                rounded-lg 
+                border 
+                w-full 
+                p-4 
+                px-3 
+                md:px-6 
+                focus-within:shadow-sm
+                grid
+                grid-cols-12
+                gap-2
+              '
 						>
 							<FormField
 								name='prompt'
@@ -67,7 +92,7 @@ export default function ConversationPage() {
 											<Input
 												className='border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent'
 												disabled={isLoading}
-												placeholder='How do I calculate the radius of the circle?'
+												placeholder='How do I calculate the radius of a circle?'
 												{...field}
 											/>
 										</FormControl>
@@ -76,15 +101,41 @@ export default function ConversationPage() {
 							/>
 							<Button
 								className='col-span-12 lg:col-span-2 w-full'
+								type='submit'
 								disabled={isLoading}
+								size='icon'
 							>
 								Generate
 							</Button>
 						</form>
 					</Form>
 				</div>
-				<div className='space-y-4 mt-4'>Messages Content</div>
+				<div className='space-y-4 mt-4'>
+					{isLoading && (
+						<div className='p-8 rounded-lg w-full flex items-center justify-center bg-muted'></div>
+					)}
+					{/* {messages.length === 0 && !isLoading && (
+						<Empty label='No conversation started.' />
+					)} */}
+					<div className='flex flex-col-reverse gap-y-4'>
+						{messages.map((message) => (
+							<div
+								key={message.content}
+								className={cn(
+									'p-8 w-full flex items-start gap-x-8 rounded-lg',
+									message.role === 'user'
+										? 'bg-white border border-black/10'
+										: 'bg-muted'
+								)}
+							>
+								<p className='text-sm'>{message.content}</p>
+							</div>
+						))}
+					</div>
+				</div>
 			</div>
 		</div>
 	);
-}
+};
+
+export default ConversationPage;
